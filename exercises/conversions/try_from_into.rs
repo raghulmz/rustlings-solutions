@@ -5,7 +5,10 @@
 // You can read more about it at https://doc.rust-lang.org/std/convert/trait.TryFrom.html
 // Execute `rustlings hint try_from_into` or use the `hint` watch subcommand for a hint.
 
-use std::convert::{TryFrom, TryInto};
+use std::{
+    convert::{TryFrom, TryInto},
+    i8,
+};
 
 #[derive(Debug, PartialEq)]
 struct Color {
@@ -23,8 +26,6 @@ enum IntoColorError {
     IntConversion,
 }
 
-// I AM NOT DONE
-
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
 // You need to create an implementation for a tuple of three integers,
@@ -38,6 +39,19 @@ enum IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        let (r, g, b) = tuple;
+
+        for c in [r, g, b] {
+            if c < u8::MIN as i16 || c > u8::MAX as i16 {
+                return Err(IntoColorError::IntConversion);
+            }
+        }
+
+        Ok(Color {
+            red: r as u8,
+            green: g as u8,
+            blue: b as u8,
+        })
     }
 }
 
@@ -45,6 +59,21 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        if arr.len() != 3 {
+            return Err(IntoColorError::BadLen);
+        };
+
+        for c in arr {
+            if c < u8::MIN as i16 || c > u8::MAX as i16 {
+                return Err(IntoColorError::IntConversion);
+            }
+        }
+
+        Ok(Color {
+            red: arr[0] as u8,
+            green: arr[1] as u8,
+            blue: arr[2] as u8,
+        })
     }
 }
 
@@ -52,6 +81,21 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() != 3 {
+            return Err(IntoColorError::BadLen);
+        };
+
+        for c in slice {
+            if *c < u8::MIN as i16 || *c > u8::MAX as i16 {
+                return Err(IntoColorError::IntConversion);
+            }
+        }
+
+        Ok(Color {
+            red: slice[0].to_owned() as u8,
+            green: slice[1].to_owned() as u8,
+            blue: slice[2].to_owned() as u8,
+        })
     }
 }
 
